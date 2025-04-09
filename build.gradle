@@ -15,7 +15,7 @@ java {
 
 configurations {
     compileOnly {
-        extendsFrom annotationProcessor
+        extendsFrom annotationProcessor //롬복에 대한 설정
     }
 }
 
