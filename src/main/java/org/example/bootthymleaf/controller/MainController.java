@@ -1,7 +1,6 @@
 package org.example.bootthymleaf.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.bootthymleaf.model.dto.UpdateWordForm;
@@ -43,29 +42,6 @@ public class MainController {
         redirectAttributes.addFlashAttribute("message", "끝말잇기 내역이 삭제되었습니다.");
         return "redirect:/";
     }
-
-//    @PostMapping("/word")
-//    public String addWord(WordForm wordForm, RedirectAttributes redirectAttributes, Model model) {
-//        redirectAttributes.addFlashAttribute("message", "끝말잇기 단어가 추가되었습니다.");
-//        Word word = new Word();
-//        word.setText(wordForm.getWord());
-//        wordRepository.save(word);
-//        return "redirect:/";
-//    }
-//
-//    @PostMapping("/update")
-//    @Transactional // 최종해결
-//    public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes) {
-//        // JPA는 업데이트용 메서드나 기능이 따로 없어요
-//        // JPA는 수정용이 따로 없어요
-//        // -> 교체 개념이에요 => put <-> patch : 멱등성 (TIL)
-//        // JPA : Jakarta Persistence API
-//        Word oldWord = wordRepository.findById(form.getUuid()).orElseThrow();
-//        oldWord.setText(form.getNewWord());
-//        wordRepository.save(oldWord);
-//        redirectAttributes.addFlashAttribute("message", "%s: 단어가 정상적으로 교체되었습니다.".formatted(oldWord.getText()));
-//        return "redirect:/";
-//    }
 
     @PostMapping("/word")
     public String addWord(WordForm wordForm, RedirectAttributes redirectAttributes, Model model, HttpServletRequest request) {
@@ -120,36 +96,38 @@ public class MainController {
         }
         return null;
     }
-
     private static String checkCSRF(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
+        String origin = request.getHeader("Origin");
 
-        // Referer 헤더가 없으면 차단 (curl 등의 도구는 기본적으로 Referer를 보내지 않음)
-        if (referer == null) {
-            return "redirect:/";
+        // 허용할 도메인 배열
+        String[] allowedDomains = {
+                "https://boot-thymleaf.onrender.com",  // 프로덕션
+                "http://localhost:8080",               // 로컬 개발
+                "localhost:8080"                       // 추가 경우
+        };
+
+        // Referer나 Origin 헤더가 없는 경우 (curl 등)
+        if (referer == null && origin == null) {
+            // 로컬 개발 환경에서만 허용
+            // 운영 환경에서는 이 부분을 더 엄격하게 제한
+            return null;
         }
 
-        // 올바른 도메인인지 확인
-        String allowedDomain = "boot-thymleaf.onrender.com";
-        if (!referer.contains(allowedDomain)) {
+        // Referer나 Origin 헤더 확인
+        boolean isAllowed = false;
+        for (String domain : allowedDomains) {
+            if ((referer != null && referer.contains(domain)) ||
+                    (origin != null && origin.contains(domain))) {
+                isAllowed = true;
+                break;
+            }
+        }
+
+        if (!isAllowed) {
             return "redirect:/";
         }
 
         return null; // 모든 검사 통과
     }
-
-//    private static String checkCSRF(HttpServletRequest request) {
-//        // Referer 또는 Origin 헤더 확인 (브라우저에서 오는 요청에는 보통 있음)
-//        String referer = request.getHeader("Referer");
-//        String origin = request.getHeader("Origin");
-//
-//        // 허용할 도메인 (자신의 도메인)
-//        String allowedDomain = "https://boot-thymleaf.onrender.com";
-//
-//        if ((referer == null || !referer.contains(allowedDomain)) &&
-//                (origin == null || !origin.contains(allowedDomain))) {
-//            return "redirect:/";
-//        }
-//        return null;
-//    }
 }
