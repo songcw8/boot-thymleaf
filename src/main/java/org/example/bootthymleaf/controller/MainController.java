@@ -92,7 +92,6 @@ public class MainController {
         if (csrf != null) return csrf;
 
         String newWord = form.getNewWord();
-
         // 한글 검증 - 정규식을 사용하여 한글만 포함되어 있는지 확인
         String x = checkKorean(redirectAttributes, newWord);
         if (x != null) return x;
@@ -123,18 +122,34 @@ public class MainController {
     }
 
     private static String checkCSRF(HttpServletRequest request) {
-        // Referer 또는 Origin 헤더 확인 (브라우저에서 오는 요청에는 보통 있음)
         String referer = request.getHeader("Referer");
-        String origin = request.getHeader("Origin");
 
-        // 허용할 도메인 (자신의 도메인)
-        //String allowedDomain = "https://boot-thymleaf.onrender.com";
-        String allowedDomain = "http://localhost:8080";
-
-        if ((referer == null || !referer.contains(allowedDomain)) &&
-                (origin == null || !origin.contains(allowedDomain))) {
+        // Referer 헤더가 없으면 차단 (curl 등의 도구는 기본적으로 Referer를 보내지 않음)
+        if (referer == null) {
             return "redirect:/";
         }
-        return null;
+
+        // 올바른 도메인인지 확인
+        String allowedDomain = "boot-thymleaf.onrender.com";
+        if (!referer.contains(allowedDomain)) {
+            return "redirect:/";
+        }
+
+        return null; // 모든 검사 통과
     }
+
+//    private static String checkCSRF(HttpServletRequest request) {
+//        // Referer 또는 Origin 헤더 확인 (브라우저에서 오는 요청에는 보통 있음)
+//        String referer = request.getHeader("Referer");
+//        String origin = request.getHeader("Origin");
+//
+//        // 허용할 도메인 (자신의 도메인)
+//        String allowedDomain = "https://boot-thymleaf.onrender.com";
+//
+//        if ((referer == null || !referer.contains(allowedDomain)) &&
+//                (origin == null || !origin.contains(allowedDomain))) {
+//            return "redirect:/";
+//        }
+//        return null;
+//    }
 }
