@@ -2,7 +2,6 @@ package org.example.bootthymleaf.controller;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.LifecycleState;
 import org.example.bootthymleaf.model.dto.UpdateWordForm;
 import org.example.bootthymleaf.model.dto.WordForm;
 import org.example.bootthymleaf.model.entity.Word;
@@ -14,9 +13,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.text.Normalizer;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -56,24 +52,55 @@ public class MainController {
         return "redirect:/";
     }
 
+//    @PostMapping("/word")
+//    public String addWord(WordForm wordForm, RedirectAttributes redirectAttributes, Model model) {
+//        redirectAttributes.addFlashAttribute("message", "끝말잇기 단어가 추가되었습니다.");
+//        Word word = new Word();
+//        word.setText(wordForm.getWord());
+//        wordRepository.save(word);
+//        return "redirect:/";
+//    }
+//
+//    @PostMapping("/update")
+//    @Transactional // 최종해결
+//    public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes) {
+//        // JPA는 업데이트용 메서드나 기능이 따로 없어요
+//        // JPA는 수정용이 따로 없어요
+//        // -> 교체 개념이에요 => put <-> patch : 멱등성 (TIL)
+//        // JPA : Jakarta Persistence API
+//        Word oldWord = wordRepository.findById(form.getUuid()).orElseThrow();
+//        oldWord.setText(form.getNewWord());
+//        wordRepository.save(oldWord);
+//        redirectAttributes.addFlashAttribute("message", "%s: 단어가 정상적으로 교체되었습니다.".formatted(oldWord.getText()));
+//        return "redirect:/";
+//    }
+
     @PostMapping("/word")
     public String addWord(WordForm wordForm, RedirectAttributes redirectAttributes, Model model) {
+        String word = wordForm.getWord();
+
+        // 한글 검증 - 정규식을 사용하여 한글만 포함되어 있는지 확인
+        String x = checkKorean(redirectAttributes, word);
+        if (x != null) return x;
+
         redirectAttributes.addFlashAttribute("message", "끝말잇기 단어가 추가되었습니다.");
-        Word word = new Word();
-        word.setText(wordForm.getWord());
-        wordRepository.save(word);
+        Word wordEntity = new Word();
+        wordEntity.setText(word);
+        wordRepository.save(wordEntity);
         return "redirect:/";
     }
 
     @PostMapping("/update")
-    @Transactional // 최종해결
+    @Transactional
     public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes) {
-        // JPA는 업데이트용 메서드나 기능이 따로 없어요
-        // JPA는 수정용이 따로 없어요
-        // -> 교체 개념이에요 => put <-> patch : 멱등성 (TIL)
-        // JPA : Jakarta Persistence API
+        String newWord = form.getNewWord();
+
+        // 한글 검증 - 정규식을 사용하여 한글만 포함되어 있는지 확인
+        String x = checkKorean(redirectAttributes, newWord);
+        if (x != null) return x;
+
         Word oldWord = wordRepository.findById(form.getUuid()).orElseThrow();
-        oldWord.setText(form.getNewWord());
+        oldWord.setText(newWord);
         wordRepository.save(oldWord);
         redirectAttributes.addFlashAttribute("message", "%s: 단어가 정상적으로 교체되었습니다.".formatted(oldWord.getText()));
         return "redirect:/";
@@ -84,5 +111,13 @@ public class MainController {
         wordRepository.deleteById(uuid);
         redirectAttributes.addFlashAttribute("message", "%s: 단어가 정상적으로 삭제되었습니다.".formatted(text));
         return "redirect:/";
+    }
+
+    private static String checkKorean(RedirectAttributes redirectAttributes, String word) {
+        if (!word.matches("^[가-힣]+$")) {
+            redirectAttributes.addFlashAttribute("message", "어허~ 한글만 입력 가능합니다.");
+            return "redirect:/";
+        }
+        return null;
     }
 }
