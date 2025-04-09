@@ -1,5 +1,7 @@
 package org.example.bootthymleaf.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.bootthymleaf.model.dto.UpdateWordForm;
@@ -18,17 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class MainController {
     private final WordRepository wordRepository;
-
-//    @GetMapping //검색, 조회에 대한 부분
-//    public String index(Model model, @RequestParam(required = false) String message) {
-//      Word word = new Word();
-//        word.setText("고양이");
-//        wordRepository.save(word);
-//        model.addAttribute("data", wordRepository.findAll());
-//        model.addAttribute("message", message);
-//        return "index";
-//    }
-
+    
     @GetMapping
     public String index(Model model) {
         model.addAttribute("data", wordRepository.findAll());
@@ -76,7 +68,10 @@ public class MainController {
 //    }
 
     @PostMapping("/word")
-    public String addWord(WordForm wordForm, RedirectAttributes redirectAttributes, Model model) {
+    public String addWord(WordForm wordForm, RedirectAttributes redirectAttributes, Model model, HttpServletRequest request) {
+        String csrf = checkCSRF(request);
+        if (csrf != null) return csrf;
+
         String word = wordForm.getWord();
 
         // 한글 검증 - 정규식을 사용하여 한글만 포함되어 있는지 확인
@@ -92,7 +87,10 @@ public class MainController {
 
     @PostMapping("/update")
     @Transactional
-    public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes) {
+    public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        String csrf = checkCSRF(request);
+        if (csrf != null) return csrf;
+
         String newWord = form.getNewWord();
 
         // 한글 검증 - 정규식을 사용하여 한글만 포함되어 있는지 확인
@@ -107,7 +105,10 @@ public class MainController {
     }
 
     @PostMapping("/delete")
-    public String deleteWord(@RequestParam("id") String uuid, @RequestParam("word") String text, RedirectAttributes redirectAttributes) {
+    public String deleteWord(@RequestParam("id") String uuid, @RequestParam("word") String text, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        String csrf = checkCSRF(request);
+        if (csrf != null) return csrf;
+
         wordRepository.deleteById(uuid);
         redirectAttributes.addFlashAttribute("message", "%s: 단어가 정상적으로 삭제되었습니다.".formatted(text));
         return "redirect:/";
@@ -116,6 +117,22 @@ public class MainController {
     private static String checkKorean(RedirectAttributes redirectAttributes, String word) {
         if (!word.matches("^[가-힣]+$")) {
             redirectAttributes.addFlashAttribute("message", "어허~ 한글만 입력 가능합니다.");
+            return "redirect:/";
+        }
+        return null;
+    }
+
+    private static String checkCSRF(HttpServletRequest request) {
+        // Referer 또는 Origin 헤더 확인 (브라우저에서 오는 요청에는 보통 있음)
+        String referer = request.getHeader("Referer");
+        String origin = request.getHeader("Origin");
+
+        // 허용할 도메인 (자신의 도메인)
+        //String allowedDomain = "https://boot-thymleaf.onrender.com";
+        String allowedDomain = "http://localhost:8080";
+
+        if ((referer == null || !referer.contains(allowedDomain)) &&
+                (origin == null || !origin.contains(allowedDomain))) {
             return "redirect:/";
         }
         return null;

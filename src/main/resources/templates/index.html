@@ -13,56 +13,6 @@
 <!--&lt;!&ndash;</body>&ndash;&gt;-->
 <!--&lt;!&ndash;</html>&ndash;&gt;-->
 
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <title>Hello World</title>-->
-<!--</head>-->
-<!--<body>-->
-<!--&lt;!&ndash; JavaScript로 팝업 표시 &ndash;&gt;-->
-<!--<script th:if="${message != null and !message.isEmpty()}" th:inline="javascript">-->
-<!--    /*<![CDATA[*/-->
-<!--    alert(/*[[${message}]]*/ '');-->
-<!--    /*]]>*/-->
-<!--</script>-->
-
-<!--<form th:action="@{/reset}" method="post">-->
-<!--    <button>전체 삭제</button>-->
-<!--</form>-->
-<!--<h1>끝말잇기</h1>-->
-<!--<form method="post" th:action="@{/word}" th:object="${wordForm}">-->
-<!--    <label>단어: </label>-->
-<!--    <input type="text" th:field="*{word}">-->
-<!--    <button>제출</button>-->
-<!--</form>-->
-
-<!--&lt;!&ndash;<h2 th:text="${data}"></h2>&ndash;&gt;-->
-<!--<section>-->
-<!--    <ul>-->
-<!--        <li th:each="word : ${words}">-->
-<!--            <span th:text="${word.getText()}"></span>-->
-<!--            <span th:text="${word.getCreateAt()}"></span>-->
-<!--            &lt;!&ndash; update &ndash;&gt;-->
-<!--            <form th:action="@{/update}" method="post">-->
-<!--                <input type="hidden" th:name="uuid" th:value="${word.getUuid()}" />-->
-<!--                <label>-->
-<!--                    수정 :-->
-<!--                    <input type="text" th:name="newWord"/>-->
-<!--                </label>-->
-<!--                <button>수정</button>-->
-<!--            </form>-->
-<!--            &lt;!&ndash; delete&ndash;&gt;-->
-<!--            <form th:action="@{/delete}" method="post">-->
-<!--                <input hidden="hidden" name="id" th:value="${word.getUuid()}">-->
-<!--                <input type="hidden" name="word" th:value="${word.getText()}" />-->
-<!--                <button>삭제</button>-->
-<!--            </form>-->
-<!--        </li>-->
-<!--    </ul>-->
-<!--</section>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
