@@ -1,10 +1,49 @@
+<!--&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;-->
+<!--&lt;!&ndash;<html xmlns:th="http://www.thymeleaf.org">&ndash;&gt;-->
+<!--&lt;!&ndash;<head>&ndash;&gt;-->
+<!--&lt;!&ndash;   <title>Hello World</title>&ndash;&gt;-->
+<!--&lt;!&ndash;</head>&ndash;&gt;-->
+<!--&lt;!&ndash;<body>&ndash;&gt;-->
+<!--&lt;!&ndash;    <p th:text="${message}"></p>&ndash;&gt;-->
+<!--&lt;!&ndash;    <form action="reset" method="post">&ndash;&gt;-->
+<!--&lt;!&ndash;        <button>전체 삭제</button>&ndash;&gt;-->
+<!--&lt;!&ndash;    </form>&ndash;&gt;-->
+<!--&lt;!&ndash;    <h1>hello</h1>&ndash;&gt;-->
+<!--&lt;!&ndash;    <h2 th:text="${data}"></h2>&ndash;&gt;-->
+<!--&lt;!&ndash;</body>&ndash;&gt;-->
+<!--&lt;!&ndash;</html>&ndash;&gt;-->
+
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-   <title>Hello World</title>
+    <title>Hello World</title>
 </head>
 <body>
-    <h1>hello</h1>
-    <h2 th:text="${data}"></h2>
+<!-- JavaScript로 팝업 표시 -->
+<script th:if="${message != null and !message.isEmpty()}" th:inline="javascript">
+    /*<![CDATA[*/
+    alert(/*[[${message}]]*/ '');
+    /*]]>*/
+</script>
+
+<form th:action="@{/reset}" method="post">
+    <button>전체 삭제</button>
+</form>
+<h1>끝말잇기</h1>
+<form method="post" th:action="@{/word}" th:object="${wordForm}">
+    <label>단어: </label>
+    <input type="text" th:field="*{word}">
+    <button>제출</button>
+</form>
+
+<!--<h2 th:text="${data}"></h2>-->
+<section>
+    <ul>
+        <li th:each="word : ${words}">
+            <span th:text="${word.getText()}"></span>
+            <span th:text="${word.getCreateAt()}"></span>
+        </li>
+    </ul>
+</section>
 </body>
 </html>

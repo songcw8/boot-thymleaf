@@ -1,0 +1,12 @@
+server:
+  port: 8080
+spring:
+  jpa:
+    hibernate:
+      # 이것도 dev와 prod를 나눠가져가도 된다
+      ddl-auto: update # 개발 환경에서는 create-drop, 운영 환경에서는 validate 권장
+      #최초 세팅에만 updata를 쓰고 그 이후는 none만 써
+  datasource:
+    url: jdbc:mysql://mysql-2193ddbc-ieungyo562-194d.d.aivencloud.com:11929/defaultdb
+    username: avnadmin
+    password: AVNS_Cj22JNUeP0-27BaUf8Y
